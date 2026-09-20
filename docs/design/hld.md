@@ -1,73 +1,59 @@
 # HIGH-LEVEL DESIGN (HLD)
 
-## Sistem Monitoring Evaluasi Belajar Siswa SD Berbasis Web Menggunakan Algoritma Decision Tree
+## Sistem Monitoring Minat Belajar Siswa SD Berbasis Web
 
-**Versi:** 0.1  
-**Status:** Draft Awal  
+**Dokumen:** High-Level Design  
+**Versi:** 1.0  
+**Status:** Draft  
 **Platform:** Web  
-**Backend:** Python Flask  
-**Database:** MySQL  
-**Algoritma:** Decision Tree  
-**Target:** Prototype 1 Semester  
+**Metode AI:** Decision Tree  
+**Tahap:** PRD → SRS → HLD → LLD  
+**Konstrain:** Prototype 1 semester, satu fitur AI inti, biaya minimal
 
 ---
 
-## 1. Gambaran Umum
+# 1. Tujuan HLD
 
-Sistem Monitoring Evaluasi Belajar Siswa SD Berbasis Web merupakan aplikasi yang digunakan untuk membantu guru dalam mengelola data siswa, data evaluasi belajar, serta melihat hasil klasifikasi evaluasi belajar siswa menggunakan algoritma Decision Tree.
+HLD ini menjelaskan rancangan arsitektur tingkat tinggi untuk Sistem Monitoring Minat Belajar Siswa SD Berbasis Web.
 
-Sistem dirancang berbasis web sehingga dapat diakses melalui browser menggunakan perangkat komputer maupun perangkat mobile.
+Fokus utama arsitektur adalah:
 
-Algoritma Decision Tree digunakan sebagai komponen klasifikasi untuk mengolah data evaluasi belajar siswa dan menghasilkan kelas atau kategori evaluasi berdasarkan model yang telah dilatih.
+- pengelolaan data siswa;
+- pencatatan data monitoring;
+- klasifikasi minat belajar menggunakan Decision Tree;
+- penyimpanan hasil klasifikasi;
+- penanganan kegagalan atau tidak tersedianya model;
+- keamanan dan privasi data siswa.
 
-> **[ASUMSI-01]** Kategori hasil evaluasi belajar ditentukan berdasarkan dataset penelitian dan hasil proses pelatihan model, karena kategori target belum ditentukan secara eksplisit pada requirements.
-
----
-
-## 2. Tujuan Sistem
-
-Tujuan sistem adalah:
-
-1. Mengelola data siswa secara terstruktur.
-2. Mengelola data evaluasi belajar siswa.
-3. Melakukan proses klasifikasi menggunakan algoritma Decision Tree.
-4. Menampilkan hasil klasifikasi evaluasi belajar siswa.
-5. Membantu guru melakukan monitoring hasil evaluasi belajar siswa.
+HLD tidak membahas detail class, method, struktur SQL, atau implementasi kode karena bagian tersebut termasuk LLD.
 
 ---
 
-## 3. Pengguna Sistem
+# 2. Arsitektur Sistem
 
-> **[ASUMSI-02]** Berdasarkan kebutuhan sistem yang telah dirancang sebelumnya, pengguna utama sistem adalah guru.
-
-### 3.1 Guru
-
-Guru dapat:
-
-- Login ke sistem.
-- Mengelola data siswa.
-- Memasukkan data evaluasi belajar.
-- Menjalankan proses klasifikasi.
-- Melihat hasil klasifikasi.
-- Melihat data monitoring evaluasi siswa.
-
-> **[ASUMSI-03]** Admin tidak dimasukkan sebagai pengguna utama pada HLD karena belum terdapat kebutuhan fungsional admin yang diberikan pada requirements.
-
----
-
-## 4. Arsitektur Sistem
-
-Arsitektur sistem menggunakan pola client-server.
+## 2.1 Diagram Arsitektur
 
 ```mermaid
 flowchart LR
-    A[Client / Browser]
-    B[Flask Backend API]
-    C[Decision Tree Service]
-    D[(MySQL Database)]
+    U[Guru / Wali Kelas / Admin] --> C[Web Client]
 
-    A -->|HTTP/HTTPS| B
-    B -->|Data Evaluasi| C
-    C -->|Hasil Klasifikasi| B
-    B -->|CRUD Data| D
-    D -->|Data Siswa & Evaluasi| B
+    C --> API[Backend API]
+
+    API --> AUTH[Authentication & Authorization]
+    API --> MON[Monitoring Service]
+    API --> STUDENT[Student Data Service]
+    API --> CLASS[Classification Service]
+
+    CLASS --> PRE[Preprocessing]
+    PRE --> DT[Decision Tree Model]
+    DT --> POST[Postprocessing]
+
+    API --> DB[(MySQL Database)]
+
+    POST --> DB
+    MON --> DB
+    STUDENT --> DB
+    AUTH --> DB
+
+    CLASS --> FALLBACK[Fallback Handler]
+    FALLBACK --> C
