@@ -1,74 +1,75 @@
-# LOW-LEVEL DESIGN (LLD) AWAL
+# LOW-LEVEL DESIGN (LLD)
 
-## Sistem Monitoring Evaluasi Belajar Siswa SD Berbasis Web Menggunakan Algoritma Decision Tree
+## Sistem Monitoring Minat Belajar Siswa SD Berbasis Web
 
-**Versi:** 0.1  
-**Status:** Draft Awal  
+**Dokumen:** Low-Level Design  
+**Versi:** 1.0  
+**Status:** Draft  
 **Platform:** Web  
-**Backend:** Python Flask  
+**Backend:** Python + Flask  
 **Database:** MySQL  
-**Machine Learning:** Decision Tree  
+**Metode AI:** Decision Tree  
 **Pola Arsitektur:** Client-Server  
-
-> **Catatan:** Dokumen ini merupakan LLD awal yang diturunkan dari HLD. 
-> ID FR/NFR harus disesuaikan kembali dengan SRS hasil revisi.
+**Tahap:** PRD → SRS → HLD → LLD
 
 ---
 
-# 1. Ruang Lingkup LLD
+# 1. Tujuan LLD
 
-LLD ini menjelaskan rancangan teknis untuk fitur utama sistem:
+LLD ini menerjemahkan desain HLD menjadi rancangan teknis yang lebih detail dan siap digunakan sebagai dasar implementasi kode.
 
-1. Pengelolaan data siswa.
-2. Pengelolaan data evaluasi belajar.
-3. Klasifikasi evaluasi belajar menggunakan Decision Tree.
+Fokus LLD:
 
-Detail yang dibahas meliputi:
+1. Authentication.
+2. Pengelolaan data siswa.
+3. Pencatatan data monitoring.
+4. Klasifikasi minat belajar menggunakan Decision Tree.
+5. Penyimpanan dan penampilan hasil klasifikasi.
+6. Penanganan error dan kegagalan model.
 
-- modul dan class;
-- atribut utama;
-- method utama;
-- skema data;
-- API;
-- alur klasifikasi;
-- error handling;
-- fallback;
-- traceability terhadap kebutuhan sistem.
+LLD tidak mengubah requirement yang telah ditetapkan pada SRS.
 
 ---
 
-# 2. Stack dan Pola Sistem
+# 2. Fitur Must yang Diimplementasikan
 
-| Komponen | Teknologi |
-|---|---|
-| Frontend | HTML, CSS, JavaScript |
-| Backend | Python Flask |
-| Database | MySQL |
-| Machine Learning | Decision Tree |
-| API | REST API |
-| Development | Visual Studio Code |
-| Browser | Chrome/Firefox/Browser modern |
+Berdasarkan SRS, fitur Must yang menjadi fokus implementasi adalah:
 
-## 2.1 Pola Sistem
+| ID | Fitur | Prioritas | Komponen |
+|---|---|---|---|
+| FR-01 | Login pengguna | Must | Authentication |
+| FR-02 | Pengelolaan data siswa | Must | Student Data Service |
+| FR-03 | Pencatatan data monitoring | Must | Monitoring Service |
+| FR-04 ★ | Klasifikasi menggunakan Decision Tree | Must | Classification Service |
+| FR-05 ★ | Menampilkan hasil klasifikasi | Must | Classification Result |
 
-Sistem menggunakan pola client-server.
+Fitur Should dan Could tidak menjadi fokus utama LLD ini.
+
+---
+
+# 3. Struktur Modul
+
+Struktur modul tingkat implementasi:
 
 ```text
-+----------------------+
-|      Web Client      |
-| HTML/CSS/JavaScript  |
-+----------+-----------+
-           |
-           | HTTP/HTTPS
-           v
-+----------------------+
-|    Flask Backend     |
-|       REST API       |
-+-----+-----------+----+
-      |           |
-      |           |
-      v           v
-+----------+  +----------------+
-|  MySQL   |  | Decision Tree  |
-| Database |  | Classification |
-+----------+  +----------------+
+Web Client
+    │
+    ▼
+Flask Backend
+    │
+    ├── Authentication
+    │
+    ├── Student Management
+    │
+    ├── Monitoring
+    │
+    └── Classification
+            │
+            ├── Validation
+            ├── Preprocessing
+            ├── Decision Tree Model
+            ├── Postprocessing
+            └── Fallback
+                    │
+                    ▼
+                 MySQL
