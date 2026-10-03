@@ -1,0 +1,505 @@
+openapi: 3.0.3
+
+info:
+  title: Sistem Monitoring Evaluasi Belajar Siswa API
+  description: >
+    REST API untuk Sistem Monitoring Evaluasi Belajar Siswa
+    Berbasis Web Menggunakan Algoritma Decision Tree.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000
+    description: Development Server
+
+tags:
+  - name: Authentication
+    description: Autentikasi pengguna
+  - name: Students
+    description: Pengelolaan data siswa
+  - name: Monitoring
+    description: Pengelolaan data monitoring siswa
+  - name: Classification
+    description: Proses klasifikasi menggunakan Decision Tree
+  - name: History
+    description: Riwayat monitoring siswa
+  - name: Summary
+    description: Ringkasan data monitoring
+  - name: Filtering
+    description: Penyaringan data monitoring
+  - name: Export
+    description: Export data monitoring
+
+paths:
+
+  /api/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login pengguna
+      description: Melakukan autentikasi pengguna sebelum mengakses sistem.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Data login tidak valid
+        '401':
+          description: Username atau password tidak valid
+        '500':
+          description: Kesalahan server
+
+  /api/students:
+    get:
+      tags:
+        - Students
+      summary: Mendapatkan daftar siswa
+      responses:
+        '200':
+          description: Daftar siswa berhasil diperoleh
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Student'
+        '401':
+          description: Belum terautentikasi
+        '500':
+          description: Kesalahan server
+
+    post:
+      tags:
+        - Students
+      summary: Menambahkan data siswa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCreateRequest'
+      responses:
+        '201':
+          description: Data siswa berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+        '400':
+          description: Data siswa tidak valid
+        '401':
+          description: Belum terautentikasi
+        '500':
+          description: Kesalahan server
+
+  /api/students/{id}:
+    put:
+      tags:
+        - Students
+      summary: Memperbarui data siswa
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID siswa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCreateRequest'
+      responses:
+        '200':
+          description: Data siswa berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+        '400':
+          description: Data tidak valid
+        '401':
+          description: Belum terautentikasi
+        '404':
+          description: Siswa tidak ditemukan
+        '500':
+          description: Kesalahan server
+
+    delete:
+      tags:
+        - Students
+      summary: Menghapus data siswa
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID siswa
+      responses:
+        '200':
+          description: Data siswa berhasil dihapus
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Belum terautentikasi
+        '404':
+          description: Siswa tidak ditemukan
+        '500':
+          description: Kesalahan server
+
+  /api/monitoring:
+    post:
+      tags:
+        - Monitoring
+      summary: Menambahkan data monitoring
+      description: Menyimpan data monitoring siswa.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MonitoringCreateRequest'
+      responses:
+        '201':
+          description: Data monitoring berhasil disimpan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringResponse'
+        '400':
+          description: Data monitoring tidak valid
+        '401':
+          description: Belum terautentikasi
+        '404':
+          description: Siswa tidak ditemukan
+        '500':
+          description: Kesalahan server
+
+  /api/classification:
+    post:
+      tags:
+        - Classification
+      summary: Melakukan klasifikasi Decision Tree
+      description: >
+        Melakukan proses klasifikasi berdasarkan data monitoring
+        menggunakan algoritma Decision Tree.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassificationRequest'
+      responses:
+        '200':
+          description: Klasifikasi berhasil
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassificationResponse'
+        '400':
+          description: Data input klasifikasi tidak valid
+        '404':
+          description: Data siswa atau monitoring tidak ditemukan
+        '422':
+          description: Data tidak dapat diproses oleh model
+        '500':
+          description: Kesalahan server atau model
+
+  /api/monitoring/history/{student_id}:
+    get:
+      tags:
+        - History
+      summary: Mendapatkan riwayat monitoring siswa
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID siswa
+      responses:
+        '200':
+          description: Riwayat monitoring berhasil diperoleh
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MonitoringHistory'
+        '401':
+          description: Belum terautentikasi
+        '404':
+          description: Siswa tidak ditemukan
+        '500':
+          description: Kesalahan server
+
+  /api/monitoring/summary:
+    get:
+      tags:
+        - Summary
+      summary: Mendapatkan ringkasan monitoring
+      responses:
+        '200':
+          description: Ringkasan berhasil diperoleh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SummaryResponse'
+        '401':
+          description: Belum terautentikasi
+        '500':
+          description: Kesalahan server
+
+  /api/monitoring/filter:
+    get:
+      tags:
+        - Filtering
+      summary: Menyaring data monitoring
+      parameters:
+        - name: kelas
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter berdasarkan kelas
+        - name: student_id
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Filter berdasarkan siswa
+        - name: tanggal
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Filter berdasarkan tanggal
+        - name: hasil
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter berdasarkan hasil klasifikasi
+      responses:
+        '200':
+          description: Data hasil filter
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MonitoringHistory'
+        '400':
+          description: Parameter filter tidak valid
+        '401':
+          description: Belum terautentikasi
+        '500':
+          description: Kesalahan server
+
+  /api/monitoring/export:
+    get:
+      tags:
+        - Export
+      summary: Export data monitoring
+      description: Menghasilkan file export data monitoring.
+      responses:
+        '200':
+          description: File export berhasil dibuat
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Belum terautentikasi
+        '404':
+          description: Data export tidak ditemukan
+        '500':
+          description: Kesalahan server
+
+components:
+
+  schemas:
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: user
+        password:
+          type: string
+          format: password
+          example: password
+
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        nama:
+          type: string
+          example: Nama Siswa
+        kelas:
+          type: string
+          example: VI
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    StudentCreateRequest:
+      type: object
+      required:
+        - nama
+        - kelas
+      properties:
+        nama:
+          type: string
+          example: Nama Siswa
+        kelas:
+          type: string
+          example: VI
+
+    StudentResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/Student'
+
+    MonitoringCreateRequest:
+      type: object
+      required:
+        - student_id
+        - tanggal
+        - data_monitoring
+      properties:
+        student_id:
+          type: integer
+          example: 1
+        tanggal:
+          type: string
+          format: date
+          example: '2026-09-26'
+        data_monitoring:
+          type: object
+          additionalProperties: true
+          description: >
+            Data monitoring siswa. Struktur atribut final
+            ditentukan berdasarkan indikator penelitian.
+
+    MonitoringResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: Data monitoring berhasil disimpan
+
+    ClassificationRequest:
+      type: object
+      required:
+        - student_id
+        - monitoring_id
+      properties:
+        student_id:
+          type: integer
+          example: 1
+        monitoring_id:
+          type: integer
+          example: 1
+
+    ClassificationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        result:
+          type: string
+          example: hasil klasifikasi
+
+    MonitoringHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        student_id:
+          type: integer
+          example: 1
+        tanggal:
+          type: string
+          format: date
+        data_monitoring:
+          type: object
+          additionalProperties: true
+        hasil:
+          type: string
+          nullable: true
+          example: hasil klasifikasi
+        created_at:
+          type: string
+          format: date-time
+
+    SummaryResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          additionalProperties: true
+
+    SuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: Operasi berhasil
