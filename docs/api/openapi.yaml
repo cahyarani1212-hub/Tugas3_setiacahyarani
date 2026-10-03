@@ -428,15 +428,34 @@ components:
             Data monitoring siswa. Struktur atribut final
             ditentukan berdasarkan indikator penelitian.
 
+    Monitoring:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        student_id:
+          type: integer
+          example: 1
+        tanggal:
+          type: string
+          format: date
+          example: '2026-09-26'
+        data_monitoring:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+
     MonitoringResponse:
       type: object
       properties:
         status:
           type: string
           example: success
-        message:
-          type: string
-          example: Data monitoring berhasil disimpan
+        data:
+          $ref: '#/components/schemas/Monitoring'
 
     ClassificationRequest:
       type: object
@@ -451,7 +470,7 @@ components:
           type: integer
           example: 1
 
-        ClassificationResponse:
+    ClassificationResponse:
       type: object
       properties:
         status:
