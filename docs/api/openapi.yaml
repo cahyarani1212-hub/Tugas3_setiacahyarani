@@ -451,13 +451,19 @@ components:
           type: integer
           example: 1
 
-    ClassificationResponse:
+        ClassificationResponse:
       type: object
       properties:
         status:
           type: string
           example: success
-        result:
+        student_id:
+          type: integer
+          example: 1
+        monitoring_id:
+          type: integer
+          example: 1
+        hasil:
           type: string
           example: hasil klasifikasi
 
