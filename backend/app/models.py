@@ -57,8 +57,6 @@ class StudentUpdate(BaseModel):
 # ============================================================
 
 class Monitoring(BaseModel):
-    """Model data monitoring siswa."""
-
     id: int
     student_id: int
     tanggal: date
